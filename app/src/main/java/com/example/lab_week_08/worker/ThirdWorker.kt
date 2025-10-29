@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-class SecondWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
+class ThirdWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params) {
 
     companion object {
         const val INPUT_DATA_ID = "input_id"
@@ -14,8 +14,8 @@ class SecondWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params)
         NotificationUtils.showNotification(
             applicationContext,
             "WorkManager Status",
-            "SecondWorker completed!",
-            2
+            "ThirdWorker completed!",
+            3
         )
         return Result.success()
     }

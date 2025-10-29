@@ -25,6 +25,12 @@
             android:enabled="true"
             android:exported="false" />
 
+        <service
+            android:name=".service.SecondNotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
     </application>
 
 </manifest>

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -15,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.work.*
 import com.example.lab_week_08.worker.FirstWorker
 import com.example.lab_week_08.worker.SecondWorker
+import com.example.lab_week_08.worker.ThirdWorker
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // ✅ STEP 9 – Request izin notifikasi (hanya untuk Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
@@ -59,25 +58,42 @@ class MainActivity : AppCompatActivity() {
             .setInputData(getIdInputData(SecondWorker.INPUT_DATA_ID, id))
             .build()
 
+        val thirdRequest = OneTimeWorkRequestBuilder<ThirdWorker>()
+            .setConstraints(networkConstraints)
+            .setInputData(getIdInputData(ThirdWorker.INPUT_DATA_ID, id))
+            .build()
+
         workManager.beginWith(firstRequest)
             .then(secondRequest)
+            .then(thirdRequest)
             .enqueue()
 
         workManager.getWorkInfoByIdLiveData(firstRequest.id)
             .observe(this) { info ->
                 if (info.state.isFinished) {
-                    showResult("First process is done")
+                    showResult("FirstWorker completed!")
                 }
             }
 
         workManager.getWorkInfoByIdLiveData(secondRequest.id)
             .observe(this) { info ->
                 if (info.state.isFinished) {
-                    showResult("Second process is done")
+                    showResult("SecondWorker completed!")
 
                     val intent = Intent(this, com.example.lab_week_08.service.NotificationService::class.java)
-                    intent.putExtra("message", "All background works are completed!")
+                    intent.putExtra("message", "SecondWorker completed!")
                     startService(intent)
+                }
+            }
+
+        workManager.getWorkInfoByIdLiveData(thirdRequest.id)
+            .observe(this) { info ->
+                if (info.state.isFinished) {
+                    showResult("ThirdWorker completed!")
+
+                    val intent = Intent(this, com.example.lab_week_08.service.SecondNotificationService::class.java)
+                    intent.putExtra("message", "All background works are completed!")
+                    startForegroundService(intent)
                 }
             }
     }
